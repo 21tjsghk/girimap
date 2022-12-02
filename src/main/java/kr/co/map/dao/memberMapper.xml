@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC	"-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd"
+>
+<mapper namespace="kr.co.map.dao.MemberDao">
+ 
+ 	<insert id="write" parameterType="kr.co.map.dto.MemberDto">
+		INSERT INTO member(userId,password,username,phone,email,zipcode,address,address_detail,birthday,gender,mem_flg)
+			VALUES(#{userId},#{password},#{username},#{phone},#{email},#{zipcode},#{address},#{address_detail},#{birthday},#{gender},#{mem_flg})
+	</insert>
+	<select id="idCheck" resultType="String">
+		SELECT userId FROM member WHERE userId = #{param1}
+	</select>
+	<select id="getQnaType" resultType="kr.co.map.dto.BoardDto">
+ 		select idx, typename from qnatype
+	</select> 
+	<select id="getQnaType_update" resultType="kr.co.map.dto.BoardDto">
+ 		select idx, typename from qnatype where idx = #{param1}
+	</select> 
+	
+	<select id="findInfo" resultType="kr.co.map.dto.MemberDto">	
+		 select idx, userId, password, username, phone, email, zipcode, address, address_detail, regdate, mem_flg
+		 ,birthday,gender,personInfo_flg,marketing_flg
+		 from member where userId = #{param1}
+	</select>
+	<insert id="doRegistQna" parameterType="kr.co.map.dto.BoardDto">
+		INSERT INTO qna (answer_type,subject,content,userId,regdate,u_idx,del_flg,answer_flg,view_cnt)
+			VALUES(#{answer_type},#{subject},#{content},#{userId},now(),#{u_idx},0,0,0)
+	</insert>
+	
+	
+	<select id="qnaInfo" parameterType="kr.co.map.dto.PageDto" resultType="kr.co.map.dto.BoardDto">
+	select idx,answer_type ,subject, userId, regdate, del_flg ,answer_flg,view_cnt
+	from qna
+	where del_flg = 0
+	<if test='boardType ==1'>
+  	and answer_type = #{boardType}
+ 	</if>	
+ 	<if test='boardType ==2'>
+  	and answer_type = #{boardType}
+ 	</if>	
+ 	<if test='boardType ==3'>
+  	and answer_type = #{boardType}
+ 	</if>	
+ 	<if test='boardType ==4'>
+  	and answer_type = #{boardType}
+ 	</if>	
+	order by idx desc
+ 	limit #{displayPost}, #{postNum}
+	</select>
+	<select id="qnaInfoAll" parameterType="kr.co.map.dto.PageDto" resultType="kr.co.map.dto.BoardDto">
+	select idx,answer_type ,subject, userId, regdate, del_flg ,answer_flg,view_cnt
+	from qna
+	where del_flg = 0
+	order by idx desc
+ 	limit #{displayPost}, #{postNum}
+	</select>
+	
+	<select id="qnaSearchCount" resultType="int">
+ 	select count(*) from qna
+ 	where 1=1 and del_flg = 0
+		
+	</select>
+	
+	<select id="qnaSearchCountType" parameterType="kr.co.map.dto.PageDto" resultType="int">
+ 	select count(*) from qna 
+ 	where del_flg = 0
+    <if test='boardType ==1'>
+  	and answer_type = #{boardType}
+ 	</if>	
+ 	<if test='boardType ==2'>
+  	and answer_type = #{boardType}
+ 	</if>	
+ 	<if test='boardType ==3'>
+  	and answer_type = #{boardType}
+ 	</if>	
+ 	<if test='boardType ==4'>
+  	and answer_type = #{boardType}
+ 	</if>	
+		
+	</select>
+	
+
+	<select id="getQnaDetail" resultType="kr.co.map.dto.BoardDto">
+	select subject, regdate, idx, content, userId, answer_type,view_cnt
+	from qna
+	where idx = #{idx}	 	
+	</select> 
+	
+	<select id="TgetqnaDetail"  resultType="kr.co.map.dto.PageDto">
+ 	select subject, regdate, idx, content, userId, answer_type,view_cnt
+	from qna	
+	where idx = #{idx}	 	
+	</select> 
+	
+	<update id="viewCount">
+	UPDATE
+		qna
+	SET
+		view_cnt = view_cnt + 1
+	WHERE
+		idx = #{param1}
+	</update>
+	<select id="bestList" resultType="kr.co.map.dto.BoardDto">
+ 	select idx,answer_type ,subject, userId, regdate, del_flg ,answer_flg,view_cnt
+	from qna
+	order by view_cnt desc
+ 	limit 15
+	</select> 
+	<update id="deleteQna" >
+		update qna set del_flg = 1 where idx = #{param1}	
+	</update>
+	
+	
+	<select id="getupdateQna"  resultType="kr.co.map.dto.BoardDto">
+ 	select subject, regdate, idx, content, userId, answer_type,view_cnt
+	from qna	
+	where idx = #{idx}	 	
+	</select> 
+	
+	
+	<update id="doUpdateQna" parameterType="kr.co.map.dto.BoardDto">
+		update qna set subject = #{subject}, content = #{content}	 where idx = #{idx}	
+	</update>
+	
+	<select id="searchReviewCount" resultType="int">
+		SELECT count(*) FROM
+		qna_answer WHERE q_idx = #{idx} AND del_flg = 0
+	</select>
+	
+	<select id="reviewlist" parameterType="kr.co.map.dto.ReviewPageDto" resultType="kr.co.map.dto.ReviewQnaDto">
+	
+		SELECT idx,userId,regdate,q_content,content FROM
+		qna_answer WHERE q_idx = #{idx} AND del_flg =0 
+		ORDER by regdate asc 
+		limit #{displayPost}, #{postNum}
+		
+	</select>
+
+	<insert id="reviewupdate" parameterType="kr.co.map.dto.ReviewQnaDto">
+		INSERT INTO qna_answer(q_idx,u_idx,q_content,content,userId,regdate,del_flg)
+		VALUES((select idx from qna where idx = #{idx}),
+		(select idx from member where userId = #{userId}),
+		#{subject},
+		#{content},
+		#{userId},
+		NOW(),
+		0
+		)
+	</insert>
+	
+</mapper>	

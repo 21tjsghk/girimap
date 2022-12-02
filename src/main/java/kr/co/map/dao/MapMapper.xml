@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC	"-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd"
+>
+	
+<mapper namespace="kr.co.map.dao.MapDAO">
+
+	<select id="toLogin" parameterType="kr.co.map.dto.MapDTO" resultType="kr.co.map.dto.MapDTO">
+	select mem_id ,mem_pw ,mem_grade  
+	from `member` m 
+	where mem_id = #{mem_id} 
+	and mem_pw = #{mem_pw}
+	</select>
+	
+	<select id="logindo" resultType="String">
+	select userId ,password ,mem_flg  
+	from `member` m 
+	where userId = #{param1} 
+	
+	</select>
+	
+	
+</mapper>
